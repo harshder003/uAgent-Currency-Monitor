@@ -5,10 +5,10 @@ import requests
 from messages import CurrencyExchangeRequest, KeyValue, CurrencyUAgentResponse, CurrencyUAgentResponseType
 from uagents import Agent, Context, Protocol
 
-CURRENCY_MARKET_SEED = os.getenv(
-    "CURRENCY_MARKET_SEED", "currency market adaptor agent secret phrase"
-)
-agent = Agent(name="currency_market_adaptor", seed=CURRENCY_MARKET_SEED)
+# CURRENCY_MARKET_SEED = os.getenv(
+#     "CURRENCY_MARKET_SEED", "currency market adaptor agent secret phrase"
+# )
+agent = Agent(name="currency_market_adaptor", seed='Currency market adaptor agent secret phrase')
 currency_market_protocol = Protocol("CurrencyMarket")
 
 FIXER_API_KEY = os.getenv("FIXER_API_KEY", "")

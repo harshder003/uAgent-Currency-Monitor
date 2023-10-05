@@ -5,11 +5,11 @@ import requests
 from messages import CurrencyExchangeRequest, CurrencyUAgentResponse, CurrencyUAgentResponseType
 from uagents import Agent, Context, Protocol
 
-CURRENCY_SEED = os.getenv("CURRENCY_SEED", "currency exchange service secret phrase")
+# CURRENCY_SEED = os.getenv("CURRENCY_SEED", "currency exchange service secret phrase")
 
 agent = Agent(
     name="currency_adaptor",
-    seed=CURRENCY_SEED,
+    seed='currency exchange service secret phrase',
 )
 
 FIXER_API_KEY = os.environ.get("FIXER_API_KEY", "")
@@ -45,8 +45,8 @@ async def currency_alert(ctx: Context, sender: str, msg: CurrencyExchangeRequest
             logging.info(f"Alert: {msg.base_currency} to {msg.foreign_currency} exchange rate has gone above the max value!")
         elif current_rate < msg.min_value:
             logging.info(f"Alert: {msg.base_currency} to {msg.foreign_currency} exchange rate has gone below the min value!")
-        else:
-            logging.info(f"{msg.base_currency} to {msg.foreign_currency} exchange rate is within the specified range.")
+        # else:
+        #     logging.info(f"{msg.base_currency} to {msg.foreign_currency} exchange rate is within the specified range.")
     except Exception as exc:
         ctx.logger.error(exc)
         await ctx.send(
