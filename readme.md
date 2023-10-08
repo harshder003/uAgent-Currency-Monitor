@@ -1,30 +1,32 @@
-# Temperature Alert Agent
+# Currency Rate Exchange Alert Agent
 
-**This project was sent for Techfest Competition [HackAI](https://techfest.org/competitions/hack-aI) Zonals.**
+**Techfest IIT Bombay[HackAI](https://techfest.org/competitions/hack-aI) Competition.**
 
 ## Project Details
 
-**Your challenge is to create the Temperature Alert Agent using [uAgent library](https://fetch.ai/docs), a tool that:**
+# Currency Exchange Rate Alert Agent
 
-1. Connects to a free weather API to fetch real-time temperatures for the specified location.
+This Currency Exchange Rate Alert Agent is a tool that allows users to monitor and receive alerts when there is a change in currency exchange rates for specified currency pairs. It connects to a free currency exchange rate API to fetch real-time exchange rate data and sends notifications to users when the exchange rate for their chosen currency pair crosses predefined thresholds.
 
-2. Lets users set their preferred temperature range (e.g., a minimum and maximum temperature) and location.
+## Features
 
-3. Sends an alert/notification to the user when the current temperature in their chosen
-   location goes below the minimum or above the maximum threshold they've set.
+- Connects to a free currency exchange rate API to fetch real-time exchange rate data.
+- Allows users to set their preferred currency pair (e.g., USD/EUR, GBP/JPY) and exchange rate thresholds.
+- Sends alerts/notifications to the user when the current exchange rate for their chosen currency pair crosses the minimum or maximum threshold they've set.
 
-## Setting up the Project
+## Set up the Project
 
-### Step 1. Prerequisites
+### Install the poetry library
 
-- Make sure you have python installed in your system by running `python --version` on your terminal.
+- Make sure you have python installed in your system and the version of the python should be between 3.11 and 3.12. 3.12 also doesn't support the project.
 
 - Install poetry on your system by running
   ```
   pip install poetry
   ```
+-Poetry works best with Ubuntu system. If you are Windows user than try WSL.
 
-### Step 2. Cloning the Project
+### Clone the Project
 
 - Run the command on your terminal `git clone <repository_url>`
 
@@ -32,7 +34,7 @@
 
 - Now navigate to the Project Directory by running `cd project_directory`
 
-### Step 3. Creating a Virtual environment
+### Creating a Virtual environment
 
 - Inside the project directory, your should create a virtual environment using Poetry:
 
@@ -48,7 +50,7 @@
   poetry shell
   ```
 
-### Step 4. Generating a MongoDb connection String to use in the .env file (Mentioned in the next point)
+### Generating a MongoDb connection String to use in the .env file (Mentioned in the next point)
 
 - Go to [MongoDb](https://www.mongodb.com/) and create a new account. Answer the basic questions and click on finish
 
@@ -62,32 +64,27 @@
 
 - You will be taken to a overview page.
 
-- Now click on Connect and click on drivers and select the driver "Python".
+- Now click on Connect and click on drivers and select the driver "Python" and Version as "3.11 or later".
 
 - Copy your connection string and Replace `<password>` with the password for the your account made in one of the above steps.
 
-### Step 5. Setting up the .env file
+### Setting up the .env file
 
-- Create an account on [OpenWeatherMap](https://openweathermap.org/) and get an Api Key.
+- Create an account on [FreeCurrencyAPI](https://app.freecurrencyapi.com/) and get an Api Key.
 
-  **_How to get an API key from OpenWeather-_**
+  - Visit [FreeCurrencyAPI](https://app.freecurrencyapi.com/) and create a new account or Sign-in to your account.
 
-  - Visit [OpenWeatherMap](https://openweathermap.org/) and create a new account or Sign-in to your account.
-
-  - Select **My API keys** and generate an API Key
-
-  - Now copy the key.
-
-  - For more queries visit [API documentation ](https://openweathermap.org/api).
+  - Now copy the Default API Key provided.
+  
+  - This API is only able to consider USD as base currency. Be sure to set base currency as USD while editing the client.py file.
 
 - Create a file in the project directory named `.env` and paste the following code in it.
 
   ```
-  WEATHER_API_KEY="<your_api_key_here>"
-  TEMPERATURE_SEED="<your_seed_here>"
+  ACCESS_KEY="<your_api_key_here>"
 
   EMAIL_SENDER = "<email_of_sendor>"
-  EMAIL_PASSWORD = "<sendor_email_password>"
+  EMAIL_PASSWORD = "<sender_app_email_password>"
 
   MONGODB_URL="<your_connection_string>"
   ```
@@ -96,137 +93,38 @@
 
 - Replace `<email_sendor>` with the email you want to send the alert from
 
-- Replace `<sendor_email_password>` with password for the that gmail account to help authenticate the account
+- Replace `<sendor_email_password>` with app password generated for your google account. Don't write your google account password, it will not work if you enter gmail password.
 
   If you don't know how to generate app passwords for your google account refer to this [link](https://support.google.com/accounts/answer/185833?hl=en#zippy=)
 
-- Replace `<your_seed_here>` with a name of choice.
-
-  Example - `TEMPERATURE_SEED="temperature"`
-
 - Replace the `<your_connection_string>` with your mongodb connection string you generated in the last point
 
-### Step 6. Run the main script
+### Run the main script
 
 ```
-py src/main.py
+python3 src/main.py
 ```
 
-Copy the Temperature agent address printed in the console.We are going to need it in step 7.
+Copy the Currency agent address printed in the console.We are going to need it.
 
-### Step 7.Set up the client script
+### Editing the client script
 
-Now that we have set up the integrations, we need to set up the client script to communicate with our temperature agent. 
+Now that we have set up the integrations, we need to set up the client script to communicate with our currency agent. 
 
-To do this, create a new Python file in the project folder called `client.py`, and paste the following:
+This script is the client side script to define the minimum and maximum values of the foreign currencies with respect to the base currency. There are many changes you need to make to client_template.py file.
 
-```py
-from dotenv import load_dotenv
+- Change the <your_currency_agent_address> to the address you copied in above step.
 
-load_dotenv()
-import os
+- Change the `receiveraddress@gmail.com` to your email address.
 
-from uagents import Agent, Context
-from uagents.setup import fund_agent_if_low
+- Mention the foreign currency, min and max value of the currency according to your choice.
 
-from src.messages import (
-    SendsTo,
-    TemperatureCondition,
-    TemperatureRequest,
-    TemperatureWarn,
-    UAgentResponse,
-    UAgentResponseType,
-)
+- The base currency needs to remain fix for this api.
 
-MAIN_AGENT_SEED = os.getenv("MAIN_AGENT_SEED")
+### Run the client script
 
-
-main_agent = Agent(
-    name="main_agent",
-    port=8001,
-    seed=MAIN_AGENT_SEED,
-    endpoint=["http://localhost:8001/submit"],
-)
-
-fund_agent_if_low(str(main_agent.wallet.address()))
-
-
-@main_agent.on_interval(period=5)
-async def send_temperature_request(ctx: Context):
-    """await ctx.send(
-        "<temperaure_agent_address>",  # Address of the temperature agent
-        TemperatureRequest(
-            location="lucknow",
-            minimum_temperature=20,
-            maximum_temperature=25,
-            sends_to=[SendsTo.AGENT],
-        ),
-    )"""
-    # passing email is not needed if sends_to list doesn't have SendsTo.EMAIL
-    await ctx.send(
-        "<temperaure_agent_address>",
-        TemperatureRequest(
-            location="lucknow",
-            email="yourmail@gmail.com",
-            minimum_temperature=20,
-            maximum_temperature=25,
-            sends_to=[SendsTo.EMAIL, SendsTo.AGENT],
-        ),
-    )
-    # if sends_to list contains SendsTo.EMAIL, then passing email is mandatory
-
-
-@main_agent.on_message(model=UAgentResponse)
-async def receive_update(ctx: Context, sender: str, message: UAgentResponse):
-    if message.type == UAgentResponseType.MESSAGE:
-        ctx.logger.info(f"{sender}: {message.message}")
-    elif message.type == UAgentResponseType.ERROR:
-        ctx.logger.error(f"{sender}: {message.message}")
-
-
-@main_agent.on_message(model=TemperatureWarn)
-async def receive_warning(ctx: Context, sender: str, message: TemperatureWarn):
-    # Client can do anything with the data received
-
-    thershold = {
-        TemperatureCondition.LOW: message.minimum_temperature,
-        TemperatureCondition.HIGH: message.maximum_temperature,
-    }
-    ctx.logger.info(
-        f"Temperature at {message.location} is {message.temperature}\n"
-        f"{message.condition.value.title()}er than the set threshold of {thershold[message.condition]}!"
-    )
-
-
-if __name__ == "__main__":
-    main_agent.run()
-```
-
-This Script will send Temperature Request to the data listed below.
-
-Make sure to replace the `yourmail@gmail.com` to receive alert mails.
-
-Replace the `<temperaure_agent_address>` with the address copied in step 6.
-
-You can edit other fields as per your choice fields in the above code.
-
-This snippet is the part of the above code to help demonstrate better.
-
-```py
-    await ctx.send(
-        "<temperaure_agent_address>",
-        TemperatureRequest(
-            location="lucknow",
-            email="yourmail@gmail.com",
-            minimum_temperature=20,
-            maximum_temperature=25,
-            sends_to=[SendsTo.EMAIL, SendsTo.AGENT],
-        ),
-    )
-```
-
-### Step 8.Run the client script
+Open a new terminal.
 
 ```sh
-py client.py
+python3 client.py
 ```
