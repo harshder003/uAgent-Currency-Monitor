@@ -1,0 +1,5 @@
+.env
+.myenv
+__pycache__/
+private_keys.json
+client.py

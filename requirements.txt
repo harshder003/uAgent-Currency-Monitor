@@ -1,0 +1,5 @@
+python-dotenv
+uagents
+motor-3.1.2
+odmantic-0.9.2
+aiosmtplib-2.0.2
