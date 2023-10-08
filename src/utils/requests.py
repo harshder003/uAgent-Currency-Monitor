@@ -5,13 +5,12 @@ from typing import Optional
 
 import aiohttp  # for making http requests
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-assert WEATHER_API_KEY, "Please set the WEATHER_API_KEY environment variable"
+ACCESS_KEY = os.getenv("ACCESS_KEY")
+assert ACCESS_KEY, "Please set the ACCESS_KEY environment variable"
 
 
 class RequestHandler:
     """
-    This class is used to handle http requests.
 
     Attributes:
         _session (Optional[aiohttp.ClientSession]): aiohttp.ClientSession object
@@ -26,7 +25,6 @@ class RequestHandler:
 
     async def start(self):
         """
-        This function is used to start the session.
 
         Returns:
             None
@@ -38,7 +36,6 @@ class RequestHandler:
 
     async def stop(self):
         """
-        This function is used to stop the session.
 
         Returns:
             None
@@ -53,7 +50,6 @@ class RequestHandler:
     @property
     def session(self):
         """
-        This function is used to get the session.
 
         Returns:
             aiohttp.ClientSession: aiohttp.ClientSession object
@@ -68,45 +64,27 @@ class RequestHandler:
             )  # raise exception if session is not started
         return self._session
 
-    async def fetch_lat_and_lon(self, location: str) -> tuple[float, float]:
+    async def fetch_rate(self, base: str,foreign: str) -> float:
         """
-        This function is used to fetch the latitude and longitude of the location.
 
         Args:
-            location (str): Location to fetch latitude and longitude of
+            base (str): Base currency
+            foreign (str): Foreign currency
 
         Returns:
-            tuple[float, float]: Latitude and longitude of the location
+            float: rate of the foreign currency with respect to the base currency
 
         Raises:
-            ValueError: Location not found
+            ValueError: Base not found
 
         """
         async with self.session.get(  # make http request to fetch latitude and longitude
-            f"http://api.openweathermap.org/geo/1.0/direct?q={location}&appid={WEATHER_API_KEY}"
+            f"https://api.freecurrencyapi.com/v1/latest?apikey={ACCESS_KEY}"
         ) as response:
             data = await response.json()
             try:
-                return data[0]["lat"], data[0]["lon"]  # return latitude and longitude
+                return data['data'][foreign]
             except Exception:
                 raise ValueError(
-                    f"Location: {location} not found"
+                    f"Base: {base} not found"
                 )  # raise exception if location is not found
-
-    async def fetch_temperature(self, lat: float, lon: float) -> float:
-        """
-        This function is used to fetch the temperature of the location.
-
-        Args:
-            lat (float): Latitude of the location
-            lon (float): Longitude of the location
-
-        Returns:
-            float: Temperature of the location
-
-        """
-        async with self.session.get(  # make http request to fetch temperature
-            f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={WEATHER_API_KEY}&units=metric"
-        ) as response:
-            data = await response.json()
-            return data["main"]["temp"]  # return temperature

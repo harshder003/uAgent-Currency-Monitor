@@ -3,7 +3,7 @@ from enum import Enum
 from uagents import Model
 
 
-class TemperatureCondition(Enum):
+class CurrencyCondition(Enum):
     """
     This class is used to define the temperature condition.
 
@@ -17,20 +17,21 @@ class TemperatureCondition(Enum):
     HIGH = "high"
 
 
-class TemperatureWarn(Model):
+class CurrencyWarn(Model):
     """
-    This class is used to send the temperature alert.
 
     Attributes:
-        location (str): Location for which temperature is requested
-        temperature (float): Temperature of the location
-        condition (TemperatureCondition): Temperature condition
-        minimum_temperature (float): Minimum temperature
-        maximum_temperature (float): Maximum temperature
+        base(str): Base currency
+        foreign(str): Foreign currency
+        rate (float): Rate of foreign currency with respect to base currency
+        condition (CurrencyCondition): Currency condition
+        minimum_value (float): Minimum value
+        maximum_value (float): Maximum value
     """
 
-    location: str
-    temperature: float
-    condition: TemperatureCondition
-    minimum_temperature: float
-    maximum_temperature: float
+    base: str
+    foreign: str
+    rate: float
+    condition: CurrencyCondition
+    minimum_value: float
+    maximum_value: float

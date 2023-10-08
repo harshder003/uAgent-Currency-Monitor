@@ -19,20 +19,21 @@ class SendsTo(StrEnum):
     EMAIL = "email"
 
 
-class TemperatureRequest(Model):
+class CurrencyRequest(Model):
     """
-    This class is used to request the temperature of a location.
 
     Attributes:
         email (Optional[str]): Email of the user
-        location (str): Location for which temperature is requested
-        minimum_temperature (int): Minimum temperature
-        maximum_temperature (int): Maximum temperature
-        sends_to (list[SendsTo]): List of destinations where the user wants to receive the temperature alert
+        base (str): Base currency
+        foreign (str): Foreign currency
+        minimum_value (int): Minimum rate
+        maximum_value (int): Maximum rate
+        sends_to (list[SendsTo]): List of destinations where the user wants to receive the currency alert
     """
 
     email: Optional[str] = None
-    location: str
-    minimum_temperature: int
-    maximum_temperature: int
+    base: str
+    foreign: str
+    minimum_value: int
+    maximum_value: int
     sends_to: list[SendsTo] = Field(default=[SendsTo.AGENT])

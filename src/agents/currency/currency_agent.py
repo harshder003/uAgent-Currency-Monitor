@@ -8,9 +8,9 @@ from uagents.setup import fund_agent_if_low
 
 from messages import (
     SendsTo,
-    TemperatureCondition,
-    TemperatureRequest,
-    TemperatureWarn,
+    CurrencyCondition,
+    CurrencyRequest,
+    CurrencyWarn,
     UAgentResponse,
     UAgentResponseType,
 )
@@ -22,9 +22,8 @@ from utils.requests import RequestHandler
 if TYPE_CHECKING:  # to avoid useless imports
     from uagents import Context
 
-
-temperate_agent = Agent(name="temperature", seed='temperature')
-fund_agent_if_low(str(temperate_agent.wallet.address()))
+currency_agent = Agent(name="currency", seed='Currency Agent')
+fund_agent_if_low(str(currency_agent.wallet.address()))
 
 
 # creating instances of classes
@@ -32,15 +31,13 @@ request_handler = RequestHandler()
 database = Database()
 
 # creating cooldowns
-update_cooldown = Cooldown(5 * 60)
+update_cooldown = Cooldown(5)
 alert_cooldown = Cooldown(3 * 60 * 60)
 
 
-@temperate_agent.on_event("startup")
+@currency_agent.on_event("startup")
 async def startup(ctx: Context):
     """
-    This function is called when the agent starts up.
-    It is used to start the request handler.
 
     Args:
         ctx (Context): Context object
@@ -48,15 +45,13 @@ async def startup(ctx: Context):
     Returns:
         None
     """
-    ctx.logger.info("Starting up temperature agent")
+    ctx.logger.info("Starting up Currency agent")
     await request_handler.start()
 
 
-@temperate_agent.on_event("shutdown")
+@currency_agent.on_event("shutdown")
 async def shutdown(ctx: Context):
     """
-    This function is called when the agent shuts down.
-    It is used to stop the request handler.
 
     Args:
         ctx (Context): Context object
@@ -64,15 +59,13 @@ async def shutdown(ctx: Context):
     Returns:
         None
     """
-    ctx.logger.info("Shutting down temperature agent")
+    ctx.logger.info("Shutting down currency agent")
     await request_handler.stop()
 
 
-@temperate_agent.on_interval(period=30 * 60)
+@currency_agent.on_interval(period=30 * 60)
 async def scan_all(ctx: Context):
     """
-    This function is called every 30 minutes.
-    It is used to scan all the users in the database and send them alerts if required.
 
     Args:
         ctx (Context): Context object
@@ -80,63 +73,58 @@ async def scan_all(ctx: Context):
     Returns:
         None
     """
-    async for data in database.find_all():  # fetch all users from database
+    async for data in database.find_all():
         if alert_cooldown.on_waiting(data.address):
-            continue  # if user is on cooldown, skip this user
+            continue
 
-        # fetch temperature from openweathermap api
-        temperature = await request_handler.fetch_temperature(data.lat, data.lon)
+        rate = await request_handler.fetch_rate(data.base, data.foreign)
 
-        # check if temperature is out of range
-        if temperature < data.minimum_temperature:
+        if rate < data.minimum_value:
             body = (
-                f"Current Temperature: {temperature}\n"
-                f"Temperature lower than the set minimum threshold of {data.minimum_temperature} Celsius\n"
-                f"Location: {data.location.title()}\n"
+                f"Rate {rate} lower than the set minimum threshold of {data.minimum_value} Celsius\n"
+                f"Base Currency: {data.base.title()}\n"
+                f"Foreign Currency: {data.foreign.title()}\n"
             )
-            condition = TemperatureCondition.LOW
-        elif temperature > data.maximum_temperature:
+            condition = CurrencyCondition.LOW
+        elif rate > data.maximum_value:
             body = (
-                f"Current Temperature: {temperature}\n"
-                f"Temperature lower than the set maximum threshold of {data.maximum_temperature} Celsius\n"
-                f"Location: {data.location.title()}\n"
+                f"Rate {rate} higher than the set maximum threshold of {data.maximum_value} Celsius\n"
+                f"Base Currency: {data.base.title()}\n"
+                f"Foreign Currency: {data.foreign.title()}\n"
             )
-            condition = TemperatureCondition.HIGH
+            condition = CurrencyCondition.HIGH
         else:
             continue
 
         
         if (SendsTo.EMAIL in data.sends_to) and data.email:
-            # check if user wants to receive email alerts
             try:
-                await send_email(data.email, "TEMPERATURE ALERT !", body)
+                await send_email(data.email, "RATE ALERT !", body)
             except Exception as e:
                 ctx.logger.error(str(e))
         if SendsTo.AGENT in data.sends_to:
-            # check if user wants to receive agent alerts
             await ctx.send(
                 data.address,
-                TemperatureWarn(
-                    location=data.location,
-                    temperature=temperature,
+                CurrencyWarn(
+                    base=data.base,
+                    foreign=data.foreign,
+                    rate=rate,
                     condition=condition,
-                    minimum_temperature=data.minimum_temperature,
-                    maximum_temperature=data.maximum_temperature,
-                ),  # send TemperatureWarn message to user
+                    minimum_value=data.minimum_value,
+                    maximum_value=data.maximum_value,
+                ),
             )
-        alert_cooldown.update(data.address)  # update cooldown
+        alert_cooldown.update(data.address)
 
 
-@temperate_agent.on_message(model=TemperatureRequest, replies=UAgentResponse)
-async def add_user(ctx: Context, sender: str, message: TemperatureRequest):
-    """ "
-    This function is called when a user sends a TemperatureRequest message to the agent.
-    It is used to add the user to the database and send a verification email if required.
+@currency_agent.on_message(model=CurrencyRequest, replies=UAgentResponse)
+async def add_user(ctx: Context, sender: str, message: CurrencyRequest):
+    """
 
     Args:
         ctx (Context): Context object
         sender (str): Address of the sender
-        message (TemperatureRequest): TemperatureRequest message sent by the user
+        message (CurrencyRequest): CurrencyRequest message sent by the user
 
     Returns:
         None
@@ -154,11 +142,9 @@ async def add_user(ctx: Context, sender: str, message: TemperatureRequest):
         return
     update_cooldown.update(sender)  # update cooldown
 
-    ctx.logger.info(f"Received temperature request for location: {message.location}")
+    ctx.logger.info(f"Received rate request.")
 
-    try:  # fetch lat and lon from openweathermap api
-        lat, lon = await request_handler.fetch_lat_and_lon(message.location)
-        # check if user wants to receive email alerts
+    try:
         if SendsTo.EMAIL in message.sends_to:
             if message.email is None:  # check if email is provided
                 raise Exception("Email is required for email alerts !")
@@ -175,11 +161,10 @@ async def add_user(ctx: Context, sender: str, message: TemperatureRequest):
     await database.insert(
         address=sender,
         email=message.email,
-        lat=lat,
-        lon=lon,
-        location=message.location,
-        min_temp=message.minimum_temperature,
-        max_temp=message.maximum_temperature,
+        base=message.base,
+        foreign=message.foreign,
+        min_value=message.minimum_value,
+        max_value=message.maximum_value,
         sends_to=message.sends_to,
     )
 
@@ -187,16 +172,14 @@ async def add_user(ctx: Context, sender: str, message: TemperatureRequest):
         sender,
         UAgentResponse(
             type=UAgentResponseType.MESSAGE,
-            message="Location added successfully for updates !",
+            message="Base Currency added successfully for updates !",
         ),
     )
 
 
-@temperate_agent.on_message(model=UAgentResponse, replies=UAgentResponse)
+@currency_agent.on_message(model=UAgentResponse, replies=UAgentResponse)
 async def remove_user(ctx: Context, sender: str, message: UAgentResponse):
     """
-    This function is called when a user sends a UAgentResponse message to the agent.
-    It is used to remove the user from the database.
 
     Args:
         ctx (Context): Context object
@@ -227,6 +210,6 @@ async def remove_user(ctx: Context, sender: str, message: UAgentResponse):
         sender,
         UAgentResponse(
             type=UAgentResponseType.MESSAGE,
-            message="Temperature updates removed successfully !",
+            message="Rate updates removed successfully !",
         ),
     )

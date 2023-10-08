@@ -6,7 +6,6 @@ from uagents import Model
 
 class UAgentResponseType(Enum):
     """
-    This class is used to define the type of response sent by the agent.
 
     Attributes:
         ERROR (str): Error message
@@ -19,7 +18,6 @@ class UAgentResponseType(Enum):
 
 class UAgentResponse(Model):
     """
-    This class is used to define the response sent by the agent.
 
     Attributes:
         type (UAgentResponseType): Type of response

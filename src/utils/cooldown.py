@@ -3,7 +3,6 @@ import time
 
 class Cooldown:
     """
-    This class is used to create cooldowns for the agent.
 
     Attributes:
         per (int): Cooldown period
@@ -17,7 +16,6 @@ class Cooldown:
 
     def on_waiting(self, key: str) -> bool:
         """
-        This function is used to check if the key is on cooldown.
 
         Args:
             key (str): Key to check
@@ -33,7 +31,6 @@ class Cooldown:
 
     def update(self, key: str) -> None:
         """
-        This function is used to update the cooldown for the key.
 
         Args:
             key (str): Key to update
