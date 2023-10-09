@@ -81,14 +81,14 @@ async def scan_all(ctx: Context):
 
         if rate < data.minimum_value:
             body = (
-                f"Rate {rate} lower than the set minimum threshold of {data.minimum_value} Celsius\n"
+                f"Rate {rate} lower than the set minimum threshold of {data.minimum_value}\n"
                 f"Base Currency: {data.base.title()}\n"
                 f"Foreign Currency: {data.foreign.title()}\n"
             )
             condition = CurrencyCondition.LOW
         elif rate > data.maximum_value:
             body = (
-                f"Rate {rate} higher than the set maximum threshold of {data.maximum_value} Celsius\n"
+                f"Rate {rate} higher than the set maximum threshold of {data.maximum_value}\n"
                 f"Base Currency: {data.base.title()}\n"
                 f"Foreign Currency: {data.foreign.title()}\n"
             )
