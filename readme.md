@@ -52,6 +52,8 @@ This Currency Exchange Rate Alert Agent is a tool that allows users to monitor a
 
 ### Generating a MongoDb connection String to use in the .env file (Mentioned in the next point)
 
+- MongoDb is used because of its noSQL featurea and its schema flexibility. Its document oriented model helps storing data in BSON( Binary JSON format).
+
 - Go to [MongoDb](https://www.mongodb.com/) and create a new account. Answer the basic questions and click on finish
 
 - Choose M0 databse configuration.
