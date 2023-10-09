@@ -79,11 +79,11 @@ class RequestHandler:
 
         """
         async with self.session.get(  # make http request to fetch latitude and longitude
-            f"https://api.freecurrencyapi.com/v1/latest?apikey={ACCESS_KEY}"
+            f"https://v6.exchangerate-api.com/v6/{ACCESS_KEY}/latest/{base}"
         ) as response:
             data = await response.json()
             try:
-                return data['data'][foreign]
+                return data['conversion_rates'][foreign]
             except Exception:
                 raise ValueError(
                     f"Base: {base} not found"

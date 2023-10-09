@@ -72,11 +72,11 @@ This Currency Exchange Rate Alert Agent is a tool that allows users to monitor a
 
 - Create an account on [FreeCurrencyAPI](https://app.freecurrencyapi.com/) and get an Api Key.
 
-  - Visit [FreeCurrencyAPI](https://app.freecurrencyapi.com/) and create a new account or Sign-in to your account.
+  - Visit [ExchangerateAPI](https://app.exchangerate-api.com/dashboard) and create a new account or Sign-in to your account.
 
   - Now copy the Default API Key provided.
   
-  - This API is only able to consider USD as base currency. Be sure to set base currency as USD while editing the client.py file.
+  - This api fetches data based on base currency you mentioned.
 
 - Create a file in the project directory named `.env` and paste the following code in it.
 
@@ -119,7 +119,16 @@ This script is the client side script to define the minimum and maximum values o
 
 - Mention the foreign currency, min and max value of the currency according to your choice.
 
-- The base currency needs to remain fix for this api.
+- The api fetches data based on base currency.
+
+- You can also edit the period in line 24 of client_template `@main_agent.on_interval(period=5*60)`. To adjust the period, after each period a request is sent. The request results into a verification mail to the receiver for checking if the mail is verified.
+
+- Alert and Update cooldown are present in `src/agents/currency/currency_agent.py`, you can edit 
+```sh
+update_cooldown = Cooldown(5*60)
+alert_cooldown = Cooldown(3 * 60)
+```
+according to your need.
 
 ### Run the client script
 

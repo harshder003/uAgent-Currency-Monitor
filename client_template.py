@@ -21,7 +21,7 @@ main_agent = Agent(
 fund_agent_if_low(str(main_agent.wallet.address()))
 
 
-@main_agent.on_interval(period=5)
+@main_agent.on_interval(period=5*60)
 async def send_currency_request(ctx: Context):
     """await ctx.send(
         "<temperaure_agent_address>",  # Address of the currency agent
@@ -36,7 +36,7 @@ async def send_currency_request(ctx: Context):
     await ctx.send(
         "<temperaure_agent_address>",
         CurrencyRequest(
-            base="USD",#Don't change this
+            base="USD",#You can set your base currency
             foreign="INR",#You can set your foreign currency
             email="receiveraddress@gmail.com",#Add your email address
             minimum_value=80,

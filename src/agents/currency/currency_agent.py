@@ -31,8 +31,8 @@ request_handler = RequestHandler()
 database = Database()
 
 # creating cooldowns
-update_cooldown = Cooldown(5)
-alert_cooldown = Cooldown(3 * 60 * 60)
+update_cooldown = Cooldown(5*60)
+alert_cooldown = Cooldown(3 * 60)
 
 
 @currency_agent.on_event("startup")
