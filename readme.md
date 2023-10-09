@@ -72,7 +72,7 @@ This Currency Exchange Rate Alert Agent is a tool that allows users to monitor a
 
 ### Setting up the .env file
 
-- Create an account on [FreeCurrencyAPI](https://app.freecurrencyapi.com/) and get an Api Key.
+- Create an account on [ExchangerateAPI](https://app.exchangerate-api.com/dashboard) and get an Api Key.
 
   - Visit [ExchangerateAPI](https://app.exchangerate-api.com/dashboard) and create a new account or Sign-in to your account.
 
